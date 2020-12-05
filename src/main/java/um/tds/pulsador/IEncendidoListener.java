@@ -5,5 +5,5 @@ import java.util.EventObject;
 
 public interface IEncendidoListener extends EventListener {
 
-	public void enteradoCambioEncendido (EventObject e);
+  public void enteradoCambioEncendido(EventObject e);
 }
