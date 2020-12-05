@@ -46,8 +46,6 @@ public class UiButton extends Canvas implements Serializable {
       height = newSize;
       setSize(width, height);
       invalidate();
-      // TODO ?
-      // repaint();
     }
 
     // Calculate Dimensions
@@ -123,8 +121,7 @@ public class UiButton extends Canvas implements Serializable {
 
   public void buttonPressed(MouseEvent e) {
     pressed = true;
-    // TODO ?
-    // repaint();
+    repaint();
   }
 
   public void buttonReleased(MouseEvent e) {
