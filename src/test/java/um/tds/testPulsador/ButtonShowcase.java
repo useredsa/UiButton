@@ -1,19 +1,18 @@
-package testPulsador;
+package um.tds.uibutton.test;
 
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.util.EventObject;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
-import pulsador.IEncendidoListener;
-import pulsador.Luz;
+import um.tds.uibutton.UiButton;
+import um.tds.uibutton.UiButtonEvent;
+import um.tds.uibutton.UiButtonListener;
 
-public class PruebaLuz {
-
+public class ButtonShowcase {
   private JFrame frame;
   private JTextArea textArea;
-  private Luz[] luces;
-  private String[] colores = {"amarillo", "rojo", "azul"};
+  private UiButton[] buttons;
+  private String[] colors = {"yellow", "red", "blue"};
 
   /** Launch the application. */
   public static void main(String[] args) {
@@ -21,7 +20,7 @@ public class PruebaLuz {
         new Runnable() {
           public void run() {
             try {
-              PruebaLuz window = new PruebaLuz();
+              ButtonShowcase window = new ButtonShowcase();
               window.frame.setVisible(true);
             } catch (Exception e) {
               e.printStackTrace();
@@ -30,8 +29,7 @@ public class PruebaLuz {
         });
   }
 
-  /** Create the application. */
-  public PruebaLuz() {
+  public ButtonShowcase() {
     initialize();
   }
 
@@ -41,58 +39,53 @@ public class PruebaLuz {
     frame.setBounds(100, 100, 450, 300);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    luces = new Luz[3];
+    buttons = new UiButton[3];
 
-    Luz luzyellow = new Luz();
-    luces[0] = luzyellow;
-    luzyellow.setBounds(26, 10, 67, 70);
-    luzyellow.addEncendidoListener(
-        new IEncendidoListener() {
-          public void enteradoCambioEncendido(EventObject e) {
-            cambioBoton(0);
+    UiButton yellowbutton = new UiButton();
+    buttons[0] = yellowbutton;
+    yellowbutton.setBounds(26, 10, 67, 70);
+    yellowbutton.addUiButtonListener(
+        new UiButtonListener() {
+          public void notifyButtonEvent(UiButtonEvent e) {
+            buttonChange(0);
           }
         });
     frame.getContentPane().setLayout(null);
-    luzyellow.setColor(Color.YELLOW);
-    frame.getContentPane().add(luzyellow);
+    yellowbutton.setColor(Color.YELLOW);
+    frame.getContentPane().add(yellowbutton);
 
-    Luz luzred = new Luz();
-    luces[1] = luzred;
-    luzred.setColor(Color.RED);
-    luzred.addEncendidoListener(
-        new IEncendidoListener() {
-          public void enteradoCambioEncendido(EventObject e) {
-            cambioBoton(1);
+    UiButton redbutton = new UiButton();
+    buttons[1] = redbutton;
+    redbutton.setColor(Color.RED);
+    redbutton.addUiButtonListener(
+        new UiButtonListener() {
+          public void notifyButtonEvent(UiButtonEvent e) {
+            buttonChange(1);
           }
         });
-    luzred.setBounds(49, 115, 30, 30);
-    frame.getContentPane().add(luzred);
+    redbutton.setBounds(49, 115, 30, 30);
+    frame.getContentPane().add(redbutton);
 
-    Luz luzblue = new Luz();
-    luces[2] = luzblue;
-    luzblue.setColor(Color.BLUE);
-    luzblue.addEncendidoListener(
-        new IEncendidoListener() {
-          public void enteradoCambioEncendido(EventObject e) {
-            cambioBoton(2);
+    UiButton bluebutton = new UiButton();
+    buttons[2] = bluebutton;
+    bluebutton.setColor(Color.BLUE);
+    bluebutton.addUiButtonListener(
+        new UiButtonListener() {
+          public void notifyButtonEvent(UiButtonEvent e) {
+            buttonChange(2);
           }
         });
-    luzblue.setBounds(49, 188, 30, 30);
-    frame.getContentPane().add(luzblue);
+    bluebutton.setBounds(49, 188, 30, 30);
+    frame.getContentPane().add(bluebutton);
 
     textArea = new JTextArea();
     textArea.setBounds(153, 43, 260, 194);
     frame.getContentPane().add(textArea);
   }
 
-  private void cambioBoton(int n) {
-    String valor;
-    if (luces[n].isEncendido()) {
-      valor = "encendido";
-    } else {
-      valor = "apagado";
-    }
-    textArea.append("Pulsador " + colores[n] + " " + valor);
+  private void buttonChange(int n) {
+    String value = buttons[n].isTurnedOn() ? "turned on" : "turned off";
+    textArea.append("Button " + colors[n] + " " + value);
     textArea.append(System.getProperty("line.separator"));
   }
 }

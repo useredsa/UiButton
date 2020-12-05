@@ -1,23 +1,21 @@
-package pulsador;
+package um.tds.uibutton;
 
 import java.util.EventObject;
 
-public class EncendidoEvent extends EventObject {
+public class UiButtonEvent extends EventObject {
+  protected boolean oldTurnedOn, turnedOn;
 
-  /** */
-  protected boolean oldEncendido, newEncendido;
-
-  public EncendidoEvent(Object fuente, boolean anterior, boolean nuevo) {
-    super(fuente);
-    newEncendido = nuevo;
-    oldEncendido = anterior;
+  public UiButtonEvent(Object source, boolean oldTurnedOn, boolean turnedOn) {
+    super(source);
+    this.oldTurnedOn = oldTurnedOn;
+    this.turnedOn = turnedOn;
   }
 
-  public boolean getNewEncendido() {
-    return newEncendido;
+  public boolean isOldTurnedOn() {
+    return oldTurnedOn;
   }
 
-  public boolean getOldEncendido() {
-    return oldEncendido;
+  public boolean isTurnedOn() {
+    return turnedOn;
   }
 }

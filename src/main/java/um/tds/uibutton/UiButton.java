@@ -1,83 +1,94 @@
-package pulsador;
+package um.tds.uibutton;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.Vector;
 
-public class Luz extends Canvas implements Serializable {
-  /** */
-  // propiedades
-  private Color color; // color de la luz
+public class UiButton extends Canvas implements Serializable {
+  private static final Color COLOR1 = new Color(160, 160, 160);
+  private static final Color COLOR2 = new Color(200, 200, 200);
 
-  private boolean encendido = false; // propiedad ligada
-  private String nombre; // identificador del pulsador
+  private String name; // button identifier
+  private Color color;
+  private boolean turnedOn = false; // linked property
 
-  private static Color colorBoton1 = new Color(160, 160, 160);
-  private static Color colorBoton2 = new Color(200, 200, 200);
+  private Vector<UiButtonListener> listeners = new Vector();
+  private boolean pressed = false;
 
-  // atributos
-  private Vector encendidoListeners = new Vector();
-  private boolean bPulsado = false; // indica si el botón está presionado o no
-
-  public Luz() {
-    setSize(30, 30); // tamaño incial por defecto del pulsador
+  public UiButton() {
+    // First set initial and minimum sizes
+    setSize(30, 30);
     setMinimumSize(new Dimension(30, 30));
     repaint();
-    // Añadir eventos de ratón
+
+    // Register mouse events
     this.addMouseListener(
         new java.awt.event.MouseAdapter() {
           public void mousePressed(MouseEvent e) {
-            luzPressed(e);
+            buttonPressed(e);
           }
 
           public void mouseReleased(MouseEvent e) {
-            luzReleased(e);
+            buttonReleased(e);
           }
         });
   }
 
   public void paint(Graphics g) {
-    // public void paint(Graphics g) {
-    // obtener el tamaño del pulsador
-    int ancho = getSize().width;
-    int alto = getSize().height;
-    // bloquear relación de aspecto
-    if (ancho != alto) {
-      if (ancho < alto) alto = ancho;
-      else ancho = alto;
-      setSize(ancho, alto);
+    int width = getSize().width;
+    int height = getSize().height;
+
+    // Block aspect ratio
+    if (width != height) {
+      int newSize = Math.min(width, height);
+      width = newSize;
+      height = newSize;
+      setSize(width, height);
       invalidate();
+      // TODO ?
       // repaint();
     }
-    // int x=ancho/6; //grosor del botón
-    int grosor = 3; // grosor del botón
-    int anchuraBoton = ancho - grosor;
-    // int alturaBoton=alto-x;
-    int bordeBoton = anchuraBoton / 5;
-    // int anchuraLuz=2*bordeBoton-2;
-    int anchuraLuz = anchuraBoton - 2 * bordeBoton;
-    int x = 0; // desplazamiento;
-    if (!bPulsado) {
-      x = 0;
+
+    // Calculate Dimensions
+    int thickness = 3; // thickness del botón
+    int buttonSize = width - thickness;
+    // int alturaBoton=height-x;
+    int buttonBorder = buttonSize / 5;
+    // int lightThickness=2*buttonBorder-2;
+    int lightThickness = buttonSize - 2 * buttonBorder;
+    int displacement = 0; // desplazamiento;
+    if (!pressed) {
+      displacement = 0;
     } else {
-      x = grosor;
+      displacement = thickness;
     }
-    g.setColor(colorBoton1);
-    g.fillOval(grosor, grosor, anchuraBoton, anchuraBoton); // dibuja grosor
-    g.setColor(Color.BLACK); // dibujar circulos negros
-    g.drawOval(grosor, grosor, anchuraBoton - 1, anchuraBoton - 1);
-    g.setColor(colorBoton2);
-    g.fillOval(x, x, anchuraBoton, anchuraBoton); // dibuja tapa
-    if (encendido) g.setColor(color);
-    else g.setColor(getBackground());
-    g.fillOval(x + bordeBoton, x + bordeBoton, anchuraLuz, anchuraLuz);
-    // dibujar luz
-    g.setColor(Color.BLACK); // dibujar circulos negros
-    g.drawOval(x, x, anchuraBoton - 1, anchuraBoton - 1);
-    g.drawOval(x + bordeBoton, x + bordeBoton, anchuraLuz - 1, anchuraLuz - 1);
-    //
-    g.setColor(getForeground()); // restituir color
+
+    // Draw furthest cirlce
+    // Draw interior (of thickness thickness);
+    g.setColor(COLOR1);
+    g.fillOval(thickness, thickness, buttonSize, buttonSize);
+    // Draw border
+    g.setColor(Color.BLACK);
+    g.drawOval(thickness, thickness, buttonSize - 1, buttonSize - 1);
+    // Draw closest cirlce
+    g.setColor(COLOR2);
+    g.fillOval(displacement, displacement, buttonSize, buttonSize);
+    // Draw lighted circle
+    g.setColor(turnedOn ? color : getBackground());
+    g.fillOval(
+        displacement + buttonBorder, displacement + buttonBorder, lightThickness, lightThickness);
+    // Draw border
+    g.setColor(Color.BLACK);
+    g.drawOval(displacement, displacement, buttonSize - 1, buttonSize - 1);
+    g.drawOval(
+        displacement + buttonBorder,
+        displacement + buttonBorder,
+        lightThickness - 1,
+        lightThickness - 1);
+
+    // Restore color
+    g.setColor(getForeground());
   }
 
   public Color getColor() {
@@ -89,63 +100,62 @@ public class Luz extends Canvas implements Serializable {
     repaint();
   }
 
-  public boolean isEncendido() {
-    return encendido;
+  public boolean isTurnedOn() {
+    return turnedOn;
   }
 
-  public void setEncendido(boolean newEncendido) {
-    boolean oldEncendido = encendido;
-    encendido = newEncendido;
-    if (oldEncendido != newEncendido) {
-      EncendidoEvent event = new EncendidoEvent(this, oldEncendido, newEncendido);
-      notificarCambioEncendido(event);
+  public void setTurnedOn(boolean value) {
+    boolean oldvalue = turnedOn;
+    turnedOn = value;
+    if (oldvalue != value) {
+      UiButtonEvent event = new UiButtonEvent(this, oldvalue, value);
+      notifyListeners(event);
     }
   }
 
-  public String getNombre() {
-    return nombre;
+  public String getName() {
+    return name;
   }
 
-  public void setNombre(String nombre) {
-    this.nombre = nombre;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  public void luzPressed(MouseEvent e) {
-    bPulsado = true; // repaint();
+  public void buttonPressed(MouseEvent e) {
+    pressed = true;
+    // TODO ?
+    // repaint();
   }
 
-  public void luzReleased(MouseEvent e) {
-    if (bPulsado) {
-      bPulsado = false;
-      if (encendido) setEncendido(false);
-      else setEncendido(true);
+  public void buttonReleased(MouseEvent e) {
+    if (pressed) {
+      pressed = false;
+      setTurnedOn(!turnedOn);
       repaint();
     }
   }
 
-  public synchronized void addEncendidoListener(IEncendidoListener listener) {
-    encendidoListeners.addElement(listener);
+  public synchronized void addUiButtonListener(UiButtonListener listener) {
+    listeners.add(listener);
   }
 
-  public synchronized void removeEncendidoListener(IEncendidoListener listener) {
-    encendidoListeners.removeElement(listener);
+  public synchronized void removeUiButtonListener(UiButtonListener listener) {
+    listeners.removeElement(listener);
   }
 
-  private void notificarCambioEncendido(EncendidoEvent evento) {
-    Vector lista;
+  private void notifyListeners(UiButtonEvent event) {
+    Vector<UiButtonListener> copy;
     synchronized (this) {
-      lista = (Vector) encendidoListeners.clone();
+      copy = (Vector) listeners.clone();
     }
-    for (int i = 0; i < lista.size(); i++) {
-      IEncendidoListener listener = (IEncendidoListener) lista.elementAt(i);
-      listener.enteradoCambioEncendido(evento);
-    }
+    copy.forEach(l -> l.notifyButtonEvent(event));
   }
 
   public Dimension getPreferredSize() {
     return new Dimension(30, 30);
   }
-  // deprecated
+
+  @Deprecated
   public Dimension getMinimumSize() {
     return getPreferredSize();
   }
