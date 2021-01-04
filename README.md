@@ -1,6 +1,6 @@
 # UI Button
 
-Component to load songs from an xml file with spanish tags.
+Graphical button. A Beans Component.
 
 ## Preview and testing
 
