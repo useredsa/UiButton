@@ -6,14 +6,16 @@ import java.io.Serializable;
 import java.util.Vector;
 
 public class UiButton extends Canvas implements Serializable {
-  private static final Color COLOR1 = new Color(160, 160, 160);
-  private static final Color COLOR2 = new Color(200, 200, 200);
+  private static final long serialVersionUID = 1L;
+  
+  private Color borderBaseColor = new Color(160, 160, 160);
+  private Color borderFrontColor = new Color(200, 200, 200);
 
   private String name; // button identifier
-  private Color color;
+  private Color lightColor;
   private boolean turnedOn = false; // linked property
 
-  private Vector<UiButtonListener> listeners = new Vector();
+  private Vector<UiButtonListener> listeners = new Vector<>();
   private boolean pressed = false;
 
   public UiButton() {
@@ -64,16 +66,16 @@ public class UiButton extends Canvas implements Serializable {
 
     // Draw furthest cirlce
     // Draw interior (of thickness thickness);
-    g.setColor(COLOR1);
+    g.setColor(borderBaseColor);
     g.fillOval(thickness, thickness, buttonSize, buttonSize);
     // Draw border
     g.setColor(Color.BLACK);
     g.drawOval(thickness, thickness, buttonSize - 1, buttonSize - 1);
     // Draw closest cirlce
-    g.setColor(COLOR2);
+    g.setColor(borderFrontColor);
     g.fillOval(displacement, displacement, buttonSize, buttonSize);
     // Draw lighted circle
-    g.setColor(turnedOn ? color : getBackground());
+    g.setColor(turnedOn ? lightColor : getBackground());
     g.fillOval(
         displacement + buttonBorder, displacement + buttonBorder, lightThickness, lightThickness);
     // Draw border
@@ -89,12 +91,30 @@ public class UiButton extends Canvas implements Serializable {
     g.setColor(getForeground());
   }
 
+  public Color getBorderBaseColor() {
+    return borderBaseColor;
+  }
+
+  public void setBorderBaseColor(Color borderBaseColor) {
+    this.borderBaseColor = borderBaseColor;
+    repaint();
+  }
+
+  public Color getBorderFrontColor() {
+    return borderFrontColor;
+  }
+
+  public void setBorderFrontColor(Color borderFrontColor) {
+    this.borderFrontColor = borderFrontColor;
+    repaint();
+  }
+
   public Color getColor() {
-    return color;
+    return lightColor;
   }
 
   public void setColor(Color color) {
-    this.color = color;
+    this.lightColor = color;
     repaint();
   }
 
@@ -143,7 +163,7 @@ public class UiButton extends Canvas implements Serializable {
   private void notifyListeners(UiButtonEvent event) {
     Vector<UiButtonListener> copy;
     synchronized (this) {
-      copy = (Vector) listeners.clone();
+      copy = (Vector<UiButtonListener>) listeners.clone();
     }
     copy.forEach(l -> l.notifyButtonEvent(event));
   }
